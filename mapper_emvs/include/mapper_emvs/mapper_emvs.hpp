@@ -78,12 +78,16 @@ public:
   MapperEMVS(){}
   
   MapperEMVS(const image_geometry::PinholeCameraModel& cam,
-             const ShapeDSI &dsi_shape);
+             const ShapeDSI& dsi_shape);
+
+  void MapperEMVS_init(const image_geometry::PinholeCameraModel& cam,
+             const ShapeDSI& dsi_shape);
 
   bool evaluateDSI(const std::vector<dvs_msgs::Event>& events,
                    const TrajectoryType& trajectory,
-                   const geometry_utils::Transformation& T_rv_w);
-  
+                   const geometry_utils::Transformation& T_rv_w,
+                   const ros::Time initial_timestamp);
+
   void getDepthMapFromDSI(cv::Mat& depth_map, cv::Mat &confidence_map, cv::Mat &mask, const OptionsDepthMap &options_depth_map);
 
   void getPointcloud(const cv::Mat& depth_map,

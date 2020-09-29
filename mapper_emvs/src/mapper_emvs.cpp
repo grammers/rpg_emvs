@@ -15,6 +15,7 @@ MapperEMVS::MapperEMVS(const image_geometry::PinholeCameraModel& cam,
   width_ = full_resolution.width;
   height_ = full_resolution.height;
 
+
   K_ << dvs_cam_.fx(), 0.f, dvs_cam_.cx(),
       0.f, dvs_cam_.fy(), dvs_cam_.cy(),
       0.f, 0.f, 1.f;
@@ -24,10 +25,31 @@ MapperEMVS::MapperEMVS(const image_geometry::PinholeCameraModel& cam,
   precomputeRectifiedPoints();
 }
 
+void MapperEMVS::MapperEMVS_init(const image_geometry::PinholeCameraModel& cam,
+                       const ShapeDSI& dsi_shape)
+{
+  dvs_cam_ = cam;
+  dsi_shape_ = dsi_shape;
+  cv::Size full_resolution = cam.fullResolution();
+  width_ = full_resolution.width;
+  height_ = full_resolution.height;
+
+  LOG(INFO) << width_;
+  K_ << dvs_cam_.fx(), 0.f, dvs_cam_.cx(),
+      0.f, dvs_cam_.fy(), dvs_cam_.cy(),
+      0.f, 0.f, 1.f;
+
+  setupDSI();
+
+  precomputeRectifiedPoints();
+  return;
+}
+
 
 bool MapperEMVS::evaluateDSI(const std::vector<dvs_msgs::Event>& events,
                              const TrajectoryType& trajectory,
-                             const geometry_utils::Transformation& T_rv_w)
+                             const geometry_utils::Transformation& T_rv_w,
+                             const ros::Time initial_timestamp)
 {
   if(events.size() < packet_size_)
   {
@@ -49,15 +71,17 @@ bool MapperEMVS::evaluateDSI(const std::vector<dvs_msgs::Event>& events,
   while(current_event_ + packet_size_ < events.size())
   {
     // Events in a packet are assigned the same timestamp (mid-point), for efficiency
-    ros::Time frame_ts = events[current_event_ + packet_size_ / 2].ts;
+    ros::Time frame_ts = ros::Time(events[current_event_ + packet_size_ / 2].ts.toSec() - initial_timestamp.toSec());
 
     Transformation T_w_ev; // from event camera to world
     Transformation T_rv_ev; // from event camera to reference viewpoint
     if(!trajectory.getPoseAt(frame_ts, T_w_ev))
     {
+      //LOG(WARNING)<<"faild to getPoseAt";
       current_event_++;
       continue;
     }
+    LOG(INFO)<<"suceed to getPoseAt";
 
     T_rv_ev = T_rv_w * T_w_ev;
 
@@ -103,7 +127,8 @@ bool MapperEMVS::evaluateDSI(const std::vector<dvs_msgs::Event>& events,
     }
   }
 
-  dsi_.resetGrid();
+  //dsi_.resetGrid();
+  //LOG(INFO) << "resetGrid:resetGri";
   fillVoxelGrid(event_locations_z0, camera_centers);
 
   return true;
@@ -322,5 +347,6 @@ void MapperEMVS::getPointcloud(const cv::Mat& depth_map,
 
   pc_->swap(*cloud_filtered);
 }
+
 
 }

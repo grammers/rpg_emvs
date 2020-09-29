@@ -82,6 +82,7 @@ public:
     auto it1 = poses_.upper_bound(t);
     if(it1 ==  poses_.begin())
     {
+      LOG(WARNING)<<"linearTransform 1";
       LOG_FIRST_N(WARNING, 5) << "Cannot extrapolate in the past. Requested pose: "
                               << t << " but the earliest pose available is at time: "
                               << poses_.begin()->first;
@@ -89,6 +90,7 @@ public:
     }
     else if(it1 == poses_.end())
     {
+      //LOG(WARNING)<<"linearTransform 2";
       LOG_FIRST_N(WARNING, 5) << "Cannot extrapolate in the future. Requested pose: "
                               << t << " but the latest pose available is at time: "
                               << (poses_.rbegin())->first;
@@ -107,6 +109,7 @@ public:
     auto T_relative = T0_.inverse() * T1_;
     auto delta_t = (t - t0_).toSec() / (t1_ - t0_).toSec();
     T = T0_ * geometry_utils::Transformation::exp(delta_t * T_relative.log());
+    LOG(INFO)<<"liner transofrm T: "<<T;
     return true;
   }
 
