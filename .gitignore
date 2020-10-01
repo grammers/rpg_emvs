@@ -5,3 +5,4 @@ mapper_emvs/depth_map.png
 mapper_emvs/dsi.npy
 mapper_emvs/pointcloud.pcd
 mapper_emvs/semidense_mask.png
+**.png

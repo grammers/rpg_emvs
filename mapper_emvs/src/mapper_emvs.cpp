@@ -61,7 +61,7 @@ bool MapperEMVS::evaluateDSI(const std::vector<dvs_msgs::Event>& events,
   // We use Vector4f because Eigen is optimized for matrix multiplications with inputs whose size is a multiple of 4
   static std::vector<Eigen::Vector4f> event_locations_z0;
   event_locations_z0.clear();
-
+  LOG(INFO)<<"event location clear";
   // List of camera centers
   static std::vector<Eigen::Vector3f> camera_centers;
   camera_centers.clear();
@@ -70,9 +70,18 @@ bool MapperEMVS::evaluateDSI(const std::vector<dvs_msgs::Event>& events,
   size_t current_event_ = 0;
   while(current_event_ + packet_size_ < events.size())
   {
+    if(events[current_event_].ts.toSec() - initial_timestamp.toSec() < 0)
+    {
+      LOG(WARNING)<<"initial_timestamp is after first event";
+      return false;
+    }
+    LOG(INFO)<<"in loop, event.ts: "<< events[current_event_].ts.toSec() << " init ts: "<< initial_timestamp.toSec();
+    LOG(INFO)<<"diff: "<< events[current_event_].ts.toSec() - initial_timestamp.toSec();
     // Events in a packet are assigned the same timestamp (mid-point), for efficiency
-    ros::Time frame_ts = ros::Time(events[current_event_ + packet_size_ / 2].ts.toSec() - initial_timestamp.toSec());
+    ros::Time frame_ts = ros::Time(events[current_event_].ts.toSec() - initial_timestamp.toSec());
+    //ros::Time frame_ts = ros::Time(events[current_event_ + packet_size_ / 2].ts.toSec() - initial_timestamp.toSec());
 
+    LOG(INFO)<<"pre getpose mapper";
     Transformation T_w_ev; // from event camera to world
     Transformation T_rv_ev; // from event camera to reference viewpoint
     if(!trajectory.getPoseAt(frame_ts, T_w_ev))

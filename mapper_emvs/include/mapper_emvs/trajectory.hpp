@@ -109,7 +109,7 @@ public:
     auto T_relative = T0_.inverse() * T1_;
     auto delta_t = (t - t0_).toSec() / (t1_ - t0_).toSec();
     T = T0_ * geometry_utils::Transformation::exp(delta_t * T_relative.log());
-    LOG(INFO)<<"liner transofrm T: "<<T;
+    //LOG(INFO)<<"liner transofrm T: "<<T;
     return true;
   }
 
