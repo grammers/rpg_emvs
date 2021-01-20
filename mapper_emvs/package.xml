@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>mapper_emvs</name>
+  <name>mapper_emvs_pro</name>
   <version>0.0.0</version>
   <description>Open implementation of EMVS (Event-based Multi-View Stereo)</description>
   <maintainer email="rebecq@ifi.uzh.ch">Henri Rebecq</maintainer>
@@ -12,7 +12,7 @@
   
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
-  <depend>dvs_msgs</depend>
+  <depend>prophesee_event_msgs</depend>
   <depend>camera_info_manager</depend>
   <depend>image_geometry</depend>
   <depend>minkindr</depend>

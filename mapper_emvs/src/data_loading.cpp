@@ -1,6 +1,6 @@
 #include <mapper_emvs/data_loading.hpp>
 
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/TransformStamped.h>
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 #include <boost/foreach.hpp>
@@ -10,7 +10,7 @@
 namespace data_loading {
 
 void parse_rosbag(const std::string &rosbag,
-                  std::vector<dvs_msgs::Event>& events_,
+                  std::vector<prophesee_event_msgs::Event>& events_,
                   std::map<ros::Time, geometry_utils::Transformation>& poses_,
                   sensor_msgs::CameraInfo& camera_info_msg,
                   const std::string& event_topic,
@@ -23,6 +23,9 @@ void parse_rosbag(const std::string &rosbag,
   topics.push_back(event_topic);
   topics.push_back(camera_info_topic);
   topics.push_back(pose_topic);
+  topics.push_back("/dvs/events");
+  topics.push_back("/dvs/camera_info");
+  topics.push_back("/optitrack/davis");
 
   poses_.clear();
   events_.clear();
@@ -34,8 +37,10 @@ void parse_rosbag(const std::string &rosbag,
   bool got_initial_stamp = false;
   ros::Time initial_timestamp;
 
+  //ROS_INFO("for eatc");
   BOOST_FOREACH(rosbag::MessageInstance const m, view)
   {
+  //ROS_INFO("for eatc");
     if(!continue_looping_through_bag)
     {
       break;
@@ -45,9 +50,9 @@ void parse_rosbag(const std::string &rosbag,
     VLOG(2) << topic_name;
 
     // Events
-    if (topic_name == topics[0])
+    if (topic_name == topics[0] || topic_name == topics[3])
     {
-      dvs_msgs::EventArray::ConstPtr msg = m.instantiate<dvs_msgs::EventArray>();
+      prophesee_event_msgs::EventArray::ConstPtr msg = m.instantiate<prophesee_event_msgs::EventArray>();
       if (msg != NULL)
       {
         if(msg->events.empty())
@@ -75,7 +80,7 @@ void parse_rosbag(const std::string &rosbag,
             continue_looping_through_bag = false;
           }
 
-          dvs_msgs::Event ev_modified(msg->events[i]);
+          prophesee_event_msgs::Event ev_modified(msg->events[i]);
           ev_modified.ts = ros::Time(ev_modified.ts.toSec() - initial_timestamp.toSec());
           events_.push_back(ev_modified);
         }
@@ -83,16 +88,18 @@ void parse_rosbag(const std::string &rosbag,
     }
 
     // Camera Info
-    if (topic_name == topics[1])
+    if (topic_name == topics[1] || topic_name == topics[4])
     {
       camera_info_msg = *(m.instantiate<sensor_msgs::CameraInfo>());
     }
 
     // Pose
-    if (topic_name == topics[2])
+    //std::cout<<topic_name<<std::endl;
+    if (topic_name == topics[2] || topic_name == topics[5])
     {
-      const geometry_msgs::PoseStamped pose_msg
-          = *(m.instantiate<geometry_msgs::PoseStamped>());
+    //ROS_INFO("read pos");
+      const geometry_msgs::TransformStamped pose_msg
+          = *(m.instantiate<geometry_msgs::TransformStamped>());
       const ros::Time& stamp = pose_msg.header.stamp;
       if(!got_initial_stamp)
       {
@@ -110,13 +117,13 @@ void parse_rosbag(const std::string &rosbag,
         continue_looping_through_bag = false;
       }
 
-      const Eigen::Vector3d position(pose_msg.pose.position.x,
-                                     pose_msg.pose.position.y,
-                                     pose_msg.pose.position.z);
-      const Eigen::Quaterniond quat(pose_msg.pose.orientation.w,
-                                    pose_msg.pose.orientation.x,
-                                    pose_msg.pose.orientation.y,
-                                    pose_msg.pose.orientation.z);
+      const Eigen::Vector3d position(pose_msg.transform.translation.x,
+                                     pose_msg.transform.translation.y,
+                                     pose_msg.transform.translation.z);
+      const Eigen::Quaterniond quat(pose_msg.transform.rotation.w,
+                                    pose_msg.transform.rotation.x,
+                                    pose_msg.transform.rotation.y,
+                                    pose_msg.transform.rotation.z);
       geometry_utils::Transformation T(position, quat);
       poses_.insert(std::pair<ros::Time, geometry_utils::Transformation>(ros::Time(pose_msg.header.stamp.toSec() - initial_timestamp.toSec()), T));
     }
@@ -124,7 +131,7 @@ void parse_rosbag(const std::string &rosbag,
 
   // Sort events by increasing timestamps
   std::sort(events_.begin(), events_.end(),
-            [](const dvs_msgs::Event& a, const dvs_msgs::Event& b) -> bool
+            [](const prophesee_event_msgs::Event& a, const prophesee_event_msgs::Event& b) -> bool
   {
     return a.ts < b.ts;
   });

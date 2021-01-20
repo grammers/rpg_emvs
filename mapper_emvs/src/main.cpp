@@ -2,6 +2,7 @@
 #include <mapper_emvs/mapper_emvs.hpp>
 
 #include <image_geometry/pinhole_camera_model.h>
+//#include <prophesee_event_msgs/Event.h>
 
 #include <opencv2/highgui/highgui.hpp>
 #include <pcl/io/pcd_io.h>
@@ -13,9 +14,9 @@
 
 // Input parameters
 DEFINE_string(bag_filename, "input.bag", "Path to the rosbag");
-DEFINE_string(event_topic, "/dvs/events", "Name of the event topic (default: /dvs/events)");
-DEFINE_string(pose_topic, "/optitrack/davis", "Name of the pose topic (default: /optitrack/davis)");
-DEFINE_string(camera_info_topic, "/dvs/camera_info", "Name of the camera info topic (default: /dvs/camera_info)");
+DEFINE_string(event_topic, "/prophesee/camera/cd_events_buffer", "Name of the event topic (default: /dvs/events)");
+DEFINE_string(pose_topic, "/vicon/event_camera/event_camera", "Name of the pose topic (default: /optitrack/davis)");
+DEFINE_string(camera_info_topic, "/prophesee/camera/camera_info", "Name of the camera info topic (default: /dvs/camera_info)");
 DEFINE_double(start_time_s, 0.0, "Start time in seconds (default: 0.0)");
 DEFINE_double(stop_time_s, 1000.0, "Stop time in seconds (default: 1000.0)");
 
@@ -53,13 +54,26 @@ int main(int argc, char** argv)
 
   // Load events, poses, and camera intrinsics from the rosbag
   sensor_msgs::CameraInfo camera_info_msg;
-  std::vector<dvs_msgs::Event> events;
+  std::vector<prophesee_event_msgs::Event> events;
   std::map<ros::Time, geometry_utils::Transformation> poses;
+  ROS_INFO("load");
   data_loading::parse_rosbag(FLAGS_bag_filename, events, poses, camera_info_msg,
                              FLAGS_event_topic, FLAGS_camera_info_topic, FLAGS_pose_topic, FLAGS_start_time_s, FLAGS_stop_time_s);
+  ROS_INFO("done");
 
   // Create a camera object from the loaded intrinsic parameters
   image_geometry::PinholeCameraModel cam;
+  if (camera_info_msg.distortion_model == ""){
+  camera_info_msg.distortion_model = "plumb_bob";
+        camera_info_msg.D = {-0.17056838404377869,0.083318889979031738,0,0,0};
+        camera_info_msg.K = {531.59205887813710, 0 , 316.22939110050925, 0, 531.77560077034229, 209.21994067113124, 0, 0, 1};
+        camera_info_msg.R = {1,0,0,0,1,0,0,0,1};
+        camera_info_msg.P = {531.59205887813710,0,316.22939110050925,0, 0,531.77560077034229,209.21994067113124,0 ,0,0,1,0};
+  //camera_info_msg.D = {0,0,0,0,0};
+  //camera_info_msg.K = {200, 0 , 320, 0, 200, 240, 0, 0, 1}; 
+  //camera_info_msg.R = {1,0,0,0,1,0,0,0,1};
+  //camera_info_msg.P = {200,0,320,0, 0,200,240,0 ,0,0,1,0};
+  }
   cam.fromCameraInfo(camera_info_msg);
 
   // Use linear interpolation to compute the camera pose for each event

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>cartesian3dgrid</name>
+  <name>cartesian3dgrid_pro</name>
   <version>0.0.0</version>
   <description>Cartesian 3D grid</description>
   <maintainer email="guillermo.gallego@ifi.uzh.ch">Guillermo Gallego</maintainer>

@@ -1,4 +1,4 @@
-project(cartesian3dgrid)
+project(cartesian3dgrid_pro)
 cmake_minimum_required(VERSION 2.8.3)
 
 find_package(catkin_simple REQUIRED)

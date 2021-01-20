@@ -4,13 +4,13 @@
 #include <map>
 #include <ros/time.h>
 #include <mapper_emvs/geometry_utils.hpp>
-#include <dvs_msgs/EventArray.h>
+#include <prophesee_event_msgs/EventArray.h>
 #include <camera_info_manager/camera_info_manager.h>
 
 namespace data_loading {
 
 void parse_rosbag(const std::string &rosbag,
-                  std::vector<dvs_msgs::Event>& events_,
+                  std::vector<prophesee_event_msgs::Event>& events_,
                   std::map<ros::Time, geometry_utils::Transformation>& poses_,
                   sensor_msgs::CameraInfo& camera_info_msg,
                   const std::string& event_topic,

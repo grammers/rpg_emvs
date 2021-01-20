@@ -18,6 +18,9 @@ MapperEMVS::MapperEMVS(const image_geometry::PinholeCameraModel& cam,
   K_ << dvs_cam_.fx(), 0.f, dvs_cam_.cx(),
       0.f, dvs_cam_.fy(), dvs_cam_.cy(),
       0.f, 0.f, 1.f;
+  //K_ << 200.f, 0.f, 320.f,
+  //     0.f, 200.f, 240.f,
+  //      0.f, 0.f, 1.f;
 
   setupDSI();
 
@@ -25,7 +28,7 @@ MapperEMVS::MapperEMVS(const image_geometry::PinholeCameraModel& cam,
 }
 
 
-bool MapperEMVS::evaluateDSI(const std::vector<dvs_msgs::Event>& events,
+bool MapperEMVS::evaluateDSI(const std::vector<prophesee_event_msgs::Event>& events,
                              const TrajectoryType& trajectory,
                              const geometry_utils::Transformation& T_rv_w)
 {
@@ -89,7 +92,7 @@ bool MapperEMVS::evaluateDSI(const std::vector<dvs_msgs::Event>& events,
     // For each packet, precompute the warped event locations according to Eq. (11) in the IJCV paper.
     for (size_t i=0; i < packet_size_; ++i)
     {
-      const dvs_msgs::Event& e = events[current_event_++];
+      const prophesee_event_msgs::Event& e = events[current_event_++];
       Eigen::Vector4f p;
 
       p.head<2>() = precomputed_rectified_points_.col(e.y * width_ + e.x);

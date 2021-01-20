@@ -5,7 +5,7 @@
 #include <mapper_emvs/trajectory.hpp>
 #include <mapper_emvs/depth_vector.hpp>
 
-#include <dvs_msgs/Event.h>
+#include <prophesee_event_msgs/Event.h>
 #include <image_geometry/pinhole_camera_model.h>
 
 #include <pcl/point_types.h>
@@ -80,7 +80,7 @@ public:
   MapperEMVS(const image_geometry::PinholeCameraModel& cam,
              const ShapeDSI &dsi_shape);
 
-  bool evaluateDSI(const std::vector<dvs_msgs::Event>& events,
+  bool evaluateDSI(const std::vector<prophesee_event_msgs::Event>& events,
                    const TrajectoryType& trajectory,
                    const geometry_utils::Transformation& T_rv_w);
   

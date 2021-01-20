@@ -1,4 +1,4 @@
-project(mapper_emvs)
+project(mapper_emvs_pro)
 cmake_minimum_required(VERSION 2.8.3)
 
 find_package(catkin_simple REQUIRED)
@@ -32,8 +32,8 @@ cs_add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 # Executables
 ################################################################################
 
-cs_add_executable(run_emvs src/main.cpp)
-target_link_libraries(run_emvs ${PROJECT_NAME})
+cs_add_executable(run_emvs_pro src/main.cpp)
+target_link_libraries(run_emvs_pro ${PROJECT_NAME})
 
 ################################################################################
 cs_install()
