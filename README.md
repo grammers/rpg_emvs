@@ -1,3 +1,11 @@
+## Adaptation for use with prophesee event camera
+Prophesee event camera depends on [prophese event camera driver](https://github.com/prophesee-ai/prophesee_ros_wrapper). For this node is only the msgs needed.
+
+The node name has bean changed ```to mapper_emvs_pro```. To run should the folowing comand be used:
+```rosrun mapper_emvs_pro run_emvs_pro --bag_filename=/path/to/slider_depth.bag --flagfile=cfg/prophesee.conf```
+
+Example bag file can be found [here](https://drive.google.com/file/d/1ds2pfCT_kmFft9y31GcZk52LrPRbMqFk/view?usp=sharing).
+
 # EMVS: Event-based Multi-View Stereo
 
 [![EMVS: Event-based Multi-View Stereo](mapper_emvs/images/youtube_preview.png)](https://youtu.be/EFpZcpd9XJ0)
